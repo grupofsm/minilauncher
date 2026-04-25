@@ -21,7 +21,7 @@
     body {
       font-family: Arial, sans-serif;
       margin: 0;
-      background: linear-gradient(135deg, #f3f7f8, #ffffff);
+      background: radial-gradient(circle at top, #ffffff 0%, #eef5f6 55%, #dcebed 100%);
       color: var(--brand-dark);
       display: flex;
       align-items: center;
@@ -31,19 +31,31 @@
     }
 
     .card {
-      background: white;
+      background: rgba(255, 255, 255, 0.96);
       width: 100%;
       max-width: 540px;
-      border-radius: 22px;
+      border-radius: 24px;
       padding: 30px;
-      box-shadow: 0 12px 35px rgba(0, 82, 99, 0.18);
+      box-shadow: 0 18px 45px rgba(0, 82, 99, 0.22);
       text-align: center;
       border-top: 8px solid var(--brand);
+      animation: enter 0.45s ease-out;
+    }
+
+    @keyframes enter {
+      from {
+        opacity: 0;
+        transform: translateY(14px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .logo {
-      max-width: 160px;
-      width: 55%;
+      max-width: 150px;
+      width: 52%;
       margin-bottom: 18px;
     }
 
@@ -60,10 +72,16 @@
     }
 
     .status {
-      margin: 22px 0;
-      padding: 15px;
-      border-radius: 14px;
+      margin: 24px 0 20px;
+      padding: 16px;
+      border-radius: 16px;
       font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 28px;
+      transition: all 0.25s ease;
     }
 
     .checking {
@@ -94,8 +112,6 @@
       border-radius: 50%;
       animation: spin 0.9s linear infinite;
       display: inline-block;
-      vertical-align: middle;
-      margin-right: 8px;
     }
 
     @keyframes spin {
@@ -113,21 +129,31 @@
 
     button {
       border: none;
-      border-radius: 15px;
+      border-radius: 17px;
       padding: 18px;
       font-size: 17px;
       cursor: pointer;
       font-weight: bold;
       transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    button span {
+      font-size: 13px;
+      font-weight: normal;
+      opacity: 0.88;
     }
 
     button:hover:not(:disabled) {
-      transform: translateY(-1px);
-      box-shadow: 0 8px 18px rgba(0,0,0,0.15);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.16);
     }
 
     button:disabled {
-      opacity: 0.45;
+      opacity: 0.42;
       cursor: not-allowed;
       transform: none;
       box-shadow: none;
@@ -145,13 +171,70 @@
 
     .recommended {
       outline: 4px solid #f2c94c;
-      outline-offset: 3px;
+      outline-offset: 4px;
+      animation: pulse 1.8s infinite;
     }
 
+    @keyframes pulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(242, 201, 76, 0.55);
+      }
+      70% {
+        box-shadow: 0 0 0 12px rgba(242, 201, 76, 0);
+      }
+      100% {
+        box-shadow: 0 0 0 0 rgba(242, 201, 76, 0);
+      }
+    }
+
+	.truck-loader {
+	  display: inline-block;
+	  font-size: 24px;
+	  animation: truckMove 1.2s ease-in-out infinite;
+	}
+
+@keyframes truckMove {
+  0% {
+    transform: translateX(-8px);
+  }
+  50% {
+    transform: translateX(8px);
+  }
+  100% {
+    transform: translateX(-8px);
+  }
+}
     .hint {
-      margin-top: 20px;
+      margin-top: 22px;
       font-size: 14px;
       color: #61777c;
+      line-height: 1.35;
+    }
+
+    .truck-loader {
+	  display: inline-block;
+	  font-size: 26px;
+	  line-height: 1;
+	  animation: truckMove 1.2s ease-in-out infinite;
+	}
+
+	@keyframes truckMove {
+	  0% {
+	    transform: translateX(-10px);
+	  }
+	  50% {
+	    transform: translateX(10px);
+	  }
+	  100% {
+	    transform: translateX(-10px);
+	  }
+}
+    .footer {
+      margin-top: 24px;
+      padding-top: 16px;
+      border-top: 1px solid #e3ecee;
+      font-size: 12px;
+      color: #829398;
     }
 
     @media (max-width: 480px) {
@@ -160,7 +243,7 @@
       }
 
       .logo {
-        max-width: 140px;
+        max-width: 130px;
       }
 
       h1 {
@@ -180,23 +263,30 @@
     <img src="logo.png" alt="Hormican FSM Construcción" class="logo" />
 
     <h1>Acceso a Power Apps</h1>
-    <p class="subtitle">Selecciona cómo quieres abrir la aplicación.</p>
+    <p class="subtitle">Selecciona el entorno de trabajo.</p>
 
     <div id="statusBox" class="status checking">
-      <span class="spinner"></span>Comprobando red interna...
-    </div>
+	  <span class="truck-loader">🚛</span>
+	  <span>Comprobando red interna...</span>
+</div>
 
     <div class="buttons">
       <button id="btnInternal" class="internal" disabled>
-        Acceso interno / red corporativa
+        🏢 Acceso corporativo
+        <span>Red interna / SQL Express / ApiHrsC</span>
       </button>
 
       <button id="btnExternal" class="external">
-        Acceso externo / internet
+        🌐 Acceso público
+        <span>Internet / SharePoint / Power Automate</span>
       </button>
     </div>
 
     <p id="hint" class="hint"></p>
+
+    <div class="footer">
+      MiniLauncher ApiHrsC · Hormican FSM
+    </div>
   </main>
 
   <script src="config.js"></script>

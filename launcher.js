@@ -10,13 +10,22 @@
     window.open(url, config.openMode || "_self");
   }
 
+  function sleep(ms) {
+    return new Promise(function (resolve) {
+      setTimeout(resolve, ms);
+    });
+  }
+
   function setStatus(cssClass, html) {
     statusBox.className = "status " + cssClass;
     statusBox.innerHTML = html;
   }
 
-  function showSpinner(message) {
-    setStatus("launching", `<span class="spinner"></span>${message}`);
+  function showTruck(message) {
+    setStatus(
+      "launching",
+      `<span class="truck-loader">🚛</span><span>${message}</span>`
+    );
   }
 
   function markRecommended(mode) {
@@ -25,47 +34,60 @@
 
     if (mode === "internal") {
       btnInternal.classList.add("recommended");
-      hint.textContent = "Recomendado: acceso interno.";
+      hint.textContent = "Se recomienda trabajar en entorno corporativo para usar la vía rápida interna.";
     }
 
     if (mode === "external") {
       btnExternal.classList.add("recommended");
-      hint.textContent = "Recomendado: acceso externo.";
+      hint.textContent = "Se recomienda trabajar en entorno público porque no se detecta acceso directo al HUB.";
     }
   }
 
-  function setStatusChecking() {
+  function setStatusChecking(attempt, total) {
     btnInternal.disabled = true;
-    setStatus("checking", `<span class="spinner"></span>Comprobando red interna...`);
+
+    if (total > 1) {
+      setStatus(
+        "checking",
+        `<span class="truck-loader">🚛</span><span>Comprobando red interna... intento ${attempt} de ${total}</span>`
+      );
+    } else {
+      setStatus(
+        "checking",
+        `<span class="truck-loader">🚛</span><span>Comprobando red interna...</span>`
+      );
+    }
+
     hint.textContent = "Comprobando disponibilidad del entorno corporativo.";
   }
 
-  function setStatusOnline() {
+  function setStatusOnline(latencyMs) {
     btnInternal.disabled = false;
-    setStatus("online", "Red interna disponible");
+
+    let message = "✅ Red corporativa disponible";
+
+    if (config.showLatency && typeof latencyMs === "number") {
+      message += ` · ${latencyMs} ms`;
+    }
+
+    setStatus("online", `<span>${message}</span>`);
     markRecommended("internal");
   }
 
   function setStatusOffline() {
     btnInternal.disabled = true;
-    setStatus("offline", "Red interna no disponible");
+    setStatus("offline", "<span>⚠️ Red corporativa no disponible</span>");
     markRecommended("external");
   }
 
-  async function checkInternalNetwork() {
-    if (!config.healthCheckEnabled) {
-      btnInternal.disabled = false;
-      setStatus("checking", "Comprobación automática desactivada");
-      hint.textContent = "Puedes elegir manualmente cualquier acceso.";
-      return;
-    }
-
-    setStatusChecking();
-
+  async function checkHubOnce() {
     const controller = new AbortController();
+
     const timeout = setTimeout(function () {
       controller.abort();
-    }, config.timeoutMs || 2500);
+    }, config.timeoutMs || 2000);
+
+    const start = performance.now();
 
     try {
       const response = await fetch(config.hubHealthUrl, {
@@ -76,23 +98,58 @@
 
       clearTimeout(timeout);
 
+      const latencyMs = Math.round(performance.now() - start);
+
       if (!response.ok) {
-        setStatusOffline();
-        return;
+        return {
+          ok: false,
+          latencyMs: latencyMs
+        };
       }
 
       const data = await response.json();
 
-      if (data && data.ok === true) {
-        setStatusOnline();
-      } else {
-        setStatusOffline();
-      }
+      return {
+        ok: data && data.ok === true,
+        latencyMs: latencyMs
+      };
 
     } catch (error) {
       clearTimeout(timeout);
-      setStatusOffline();
+
+      return {
+        ok: false,
+        latencyMs: null
+      };
     }
+  }
+
+  async function checkInternalNetwork() {
+    if (!config.healthCheckEnabled) {
+      btnInternal.disabled = false;
+      setStatus("checking", "<span>Comprobación automática desactivada</span>");
+      hint.textContent = "Puedes elegir manualmente cualquier acceso.";
+      return;
+    }
+
+    const totalAttempts = Math.max(1, config.maxRetries || 1);
+
+    for (let attempt = 1; attempt <= totalAttempts; attempt++) {
+      setStatusChecking(attempt, totalAttempts);
+
+      const result = await checkHubOnce();
+
+      if (result.ok === true) {
+        setStatusOnline(result.latencyMs);
+        return;
+      }
+
+      if (attempt < totalAttempts) {
+        await sleep(config.retryDelayMs || 400);
+      }
+    }
+
+    setStatusOffline();
   }
 
   btnInternal.addEventListener("click", function () {
@@ -100,7 +157,7 @@
       return;
     }
 
-    showSpinner("Conectando a entorno corporativo...");
+    showTruck("Conectando a entorno corporativo...");
 
     setTimeout(function () {
       openUrl(config.internalAppUrl);
@@ -108,7 +165,7 @@
   });
 
   btnExternal.addEventListener("click", function () {
-    showSpinner("Conectando a entorno público...");
+    showTruck("Conectando a entorno público...");
 
     setTimeout(function () {
       openUrl(config.externalAppUrl);
