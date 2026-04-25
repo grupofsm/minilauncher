@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MiniLauncher Hormican FSM</title>
+
+  <style>
+    :root {
+      --brand: #005263;
+      --brand-dark: #003f4c;
+      --brand-soft: #e8f3f5;
+      --success-bg: #dff3e6;
+      --success-text: #145c2e;
+      --warning-bg: #fff4d6;
+      --warning-text: #7a5700;
+      --error-bg: #fde2e2;
+      --error-text: #842029;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: linear-gradient(135deg, #f3f7f8, #ffffff);
+      color: var(--brand-dark);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .card {
+      background: white;
+      width: 100%;
+      max-width: 540px;
+      border-radius: 22px;
+      padding: 30px;
+      box-shadow: 0 12px 35px rgba(0, 82, 99, 0.18);
+      text-align: center;
+      border-top: 8px solid var(--brand);
+    }
+
+    .logo {
+      max-width: 160px;
+      width: 55%;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 25px;
+      color: var(--brand);
+    }
+
+    .subtitle {
+      margin: 0;
+      color: #50666b;
+      font-size: 15px;
+    }
+
+    .status {
+      margin: 22px 0;
+      padding: 15px;
+      border-radius: 14px;
+      font-weight: bold;
+    }
+
+    .checking {
+      background: var(--warning-bg);
+      color: var(--warning-text);
+    }
+
+    .online {
+      background: var(--success-bg);
+      color: var(--success-text);
+    }
+
+    .offline {
+      background: var(--error-bg);
+      color: var(--error-text);
+    }
+
+    .launching {
+      background: var(--brand-soft);
+      color: var(--brand);
+    }
+
+    .spinner {
+      width: 22px;
+      height: 22px;
+      border: 3px solid rgba(0, 82, 99, 0.2);
+      border-top: 3px solid var(--brand);
+      border-radius: 50%;
+      animation: spin 0.9s linear infinite;
+      display: inline-block;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-top: 22px;
+    }
+
+    button {
+      border: none;
+      border-radius: 15px;
+      padding: 18px;
+      font-size: 17px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+    }
+
+    button:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 18px rgba(0,0,0,0.15);
+    }
+
+    button:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .internal {
+      background: var(--brand);
+      color: white;
+    }
+
+    .external {
+      background: #3c4a4d;
+      color: white;
+    }
+
+    .recommended {
+      outline: 4px solid #f2c94c;
+      outline-offset: 3px;
+    }
+
+    .hint {
+      margin-top: 20px;
+      font-size: 14px;
+      color: #61777c;
+    }
+
+    @media (max-width: 480px) {
+      .card {
+        padding: 24px 18px;
+      }
+
+      .logo {
+        max-width: 140px;
+      }
+
+      h1 {
+        font-size: 22px;
+      }
+
+      button {
+        font-size: 16px;
+        padding: 17px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="card">
+    <img src="logo.png" alt="Hormican FSM Construcción" class="logo" />
+
+    <h1>Acceso a Power Apps</h1>
+    <p class="subtitle">Selecciona cómo quieres abrir la aplicación.</p>
+
+    <div id="statusBox" class="status checking">
+      <span class="spinner"></span>Comprobando red interna...
+    </div>
+
+    <div class="buttons">
+      <button id="btnInternal" class="internal" disabled>
+        Acceso interno / red corporativa
+      </button>
+
+      <button id="btnExternal" class="external">
+        Acceso externo / internet
+      </button>
+    </div>
+
+    <p id="hint" class="hint"></p>
+  </main>
+
+  <script src="config.js"></script>
+  <script src="launcher.js"></script>
+</body>
+</html>
