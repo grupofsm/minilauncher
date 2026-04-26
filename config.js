@@ -1,11 +1,14 @@
 window.launcherConfig = {
   appName: "ApiHrsC Power Apps",
 
-  internalDesktopAppUrl: "https://apps.powerapps.com/play/APP_INTERNA_DESKTOP",
-  internalMobileAppUrl: "https://apps.powerapps.com/play/APP_INTERNA_SMARTPHONE",
+  premiumDirectDesktopAppUrl: "https://apps.powerapps.com/play/APP_PREMIUM_DIRECTA_DESKTOP",
+  premiumDirectMobileAppUrl: "https://apps.powerapps.com/play/APP_PREMIUM_DIRECTA_SMARTPHONE",
 
-  externalDesktopAppUrl: "https://apps.powerapps.com/play/APP_EXTERNA_DESKTOP",
-  externalMobileAppUrl: "https://apps.powerapps.com/play/APP_EXTERNA_SMARTPHONE",
+  premiumGatewayDesktopAppUrl: "https://apps.powerapps.com/play/APP_PREMIUM_GATEWAY_DESKTOP",
+  premiumGatewayMobileAppUrl: "https://apps.powerapps.com/play/APP_PREMIUM_GATEWAY_SMARTPHONE",
+
+  standardDesktopAppUrl: "https://apps.powerapps.com/play/APP_ESTANDAR_DESKTOP",
+  standardMobileAppUrl: "https://apps.powerapps.com/play/APP_ESTANDAR_SMARTPHONE",
 
   hubHealthUrl: "http://IP_INTERNA:PUERTO/hub-health",
 

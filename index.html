@@ -86,7 +86,7 @@
     }
 
     .status {
-      margin: 16px 0 14px;
+      margin: 16px 0 10px;
       padding: 10px;
       border-radius: 12px;
       font-size: 13px;
@@ -133,6 +133,21 @@
       to { transform: rotate(360deg); }
     }
 
+    .target {
+      margin: 10px 0 14px;
+      padding: 10px;
+      border-radius: 12px;
+      background: #f4f8f9;
+      border: 1px solid #d9e7ea;
+      font-size: 12px;
+      color: #40575c;
+      line-height: 1.35;
+    }
+
+    .target strong {
+      color: var(--brand);
+    }
+
     .buttons {
       display: flex;
       flex-direction: column;
@@ -143,7 +158,7 @@
     button {
       border: none;
       border-radius: 12px;
-      padding: 12px;
+      padding: 13px;
       font-size: 14px;
       cursor: pointer;
       font-weight: bold;
@@ -172,17 +187,9 @@
       box-shadow: none;
     }
 
-    .internal {
+    .primary {
       background: var(--brand);
       color: white;
-    }
-
-    .external {
-      background: #3c4a4d;
-      color: white;
-    }
-
-    .recommended {
       outline: 3px solid #f2c94c;
       outline-offset: 3px;
     }
@@ -237,7 +244,7 @@
     <img src="logo.png" alt="Hormican FSM Construcción" class="logo" />
 
     <h1>Acceso a Power Apps</h1>
-    <p class="subtitle">Selecciona perfil, dispositivo y entorno de trabajo.</p>
+    <p class="subtitle">Selecciona perfil y dispositivo.</p>
 
     <div class="selectors">
       <div class="field">
@@ -262,15 +269,14 @@
       <span>Comprobando red interna...</span>
     </div>
 
-    <div class="buttons">
-      <button id="btnInternal" class="internal" disabled>
-        🏢 Acceso corporativo
-        <span>Red interna / SQL Express / ApiHrsC</span>
-      </button>
+    <div id="targetBox" class="target">
+      Destino seleccionado: <strong>calculando...</strong>
+    </div>
 
-      <button id="btnExternal" class="external">
-        🌐 Acceso público
-        <span>Internet / SharePoint / Power Automate</span>
+    <div class="buttons">
+      <button id="btnLaunch" class="primary">
+        Abrir aplicación recomendada
+        <span id="btnLaunchSub">Preparando destino...</span>
       </button>
     </div>
 

@@ -2,13 +2,15 @@
   const config = window.launcherConfig;
 
   const statusBox = document.getElementById("statusBox");
-  const btnInternal = document.getElementById("btnInternal");
-  const btnExternal = document.getElementById("btnExternal");
+  const targetBox = document.getElementById("targetBox");
+  const btnLaunch = document.getElementById("btnLaunch");
+  const btnLaunchSub = document.getElementById("btnLaunchSub");
   const hint = document.getElementById("hint");
   const profileSelect = document.getElementById("profileSelect");
   const deviceSelect = document.getElementById("deviceSelect");
 
   let internalNetworkAvailable = false;
+  let lastLatencyMs = null;
 
   function getProfile() {
     return profileSelect.value;
@@ -16,6 +18,10 @@
 
   function getDevice() {
     return deviceSelect.value;
+  }
+
+  function getDeviceLabel() {
+    return getDevice() === "mobile" ? "Smartphone" : "Desktop";
   }
 
   function savePreferences() {
@@ -31,16 +37,34 @@
     deviceSelect.value = savedDevice;
   }
 
-  function getInternalUrl() {
-    return getDevice() === "mobile"
-      ? config.internalMobileAppUrl
-      : config.internalDesktopAppUrl;
-  }
+  function getLaunchTarget() {
+    const profile = getProfile();
+    const device = getDevice();
 
-  function getExternalUrl() {
-    return getDevice() === "mobile"
-      ? config.externalMobileAppUrl
-      : config.externalDesktopAppUrl;
+    if (profile === "standard") {
+      return {
+        mode: "standard",
+        title: "Estándar vía SharePoint",
+        description: "Sin conectores premium",
+        url: device === "mobile" ? config.standardMobileAppUrl : config.standardDesktopAppUrl
+      };
+    }
+
+    if (profile === "premium" && internalNetworkAvailable) {
+      return {
+        mode: "premium-direct",
+        title: "Premium directo al HUB",
+        description: "Red corporativa detectada",
+        url: device === "mobile" ? config.premiumDirectMobileAppUrl : config.premiumDirectDesktopAppUrl
+      };
+    }
+
+    return {
+      mode: "premium-gateway",
+      title: "Premium vía Gateway",
+      description: "Sin red directa al HUB",
+      url: device === "mobile" ? config.premiumGatewayMobileAppUrl : config.premiumGatewayDesktopAppUrl
+    };
   }
 
   function openUrl(url) {
@@ -60,45 +84,27 @@
     setStatus("launching", `<span class="spinner"></span><span>${message}</span>`);
   }
 
-  function clearRecommended() {
-    btnInternal.classList.remove("recommended");
-    btnExternal.classList.remove("recommended");
-  }
+  function updateTargetUi() {
+    const target = getLaunchTarget();
 
-  function recommendInternal() {
-    clearRecommended();
-    btnInternal.classList.add("recommended");
-    hint.textContent = "Se recomienda entorno corporativo: perfil Premium y red interna disponible.";
-  }
+    targetBox.innerHTML =
+      `Destino seleccionado: <strong>${target.title}</strong><br>` +
+      `${target.description} · ${getDeviceLabel()}`;
 
-  function recommendExternal(reason) {
-    clearRecommended();
-    btnExternal.classList.add("recommended");
-    hint.textContent = reason;
-  }
+    btnLaunchSub.textContent = target.title + " · " + getDeviceLabel();
 
-  function refreshButtonsAndRecommendation() {
-    const profile = getProfile();
-
-    if (profile === "standard") {
-      btnInternal.disabled = true;
-      recommendExternal("Perfil Estándar seleccionado: se usará entorno público mediante SharePoint y Power Automate.");
-      return;
+    if (target.mode === "standard") {
+      hint.textContent = "Perfil Estándar: se usará la versión basada en SharePoint, sin conectores premium.";
+    } else if (target.mode === "premium-direct") {
+      hint.textContent = "Perfil Premium: se usará la versión con conexión directa al HUB corporativo.";
+    } else {
+      hint.textContent = "Perfil Premium: se usará la versión con conectores premium a través del Gateway.";
     }
-
-    if (profile === "premium" && internalNetworkAvailable) {
-      btnInternal.disabled = false;
-      recommendInternal();
-      return;
-    }
-
-    btnInternal.disabled = true;
-    recommendExternal("Perfil Premium seleccionado, pero no se detecta red corporativa. Se recomienda entorno público.");
   }
 
   function setStatusChecking(attempt, total) {
     internalNetworkAvailable = false;
-    btnInternal.disabled = true;
+    lastLatencyMs = null;
 
     if (total > 1) {
       setStatus(
@@ -112,11 +118,12 @@
       );
     }
 
-    hint.textContent = "Comprobando disponibilidad del entorno corporativo.";
+    updateTargetUi();
   }
 
   function setStatusOnline(latencyMs) {
     internalNetworkAvailable = true;
+    lastLatencyMs = latencyMs;
 
     let message = "✅ Red corporativa disponible";
 
@@ -125,13 +132,15 @@
     }
 
     setStatus("online", `<span>${message}</span>`);
-    refreshButtonsAndRecommendation();
+    updateTargetUi();
   }
 
   function setStatusOffline() {
     internalNetworkAvailable = false;
+    lastLatencyMs = null;
+
     setStatus("offline", "<span>⚠️ Red corporativa no disponible</span>");
-    refreshButtonsAndRecommendation();
+    updateTargetUi();
   }
 
   async function checkHubOnce() {
@@ -173,9 +182,9 @@
 
   async function checkInternalNetwork() {
     if (!config.healthCheckEnabled) {
-      internalNetworkAvailable = true;
+      internalNetworkAvailable = false;
       setStatus("checking", "<span>Comprobación automática desactivada</span>");
-      refreshButtonsAndRecommendation();
+      updateTargetUi();
       return;
     }
 
@@ -201,36 +210,25 @@
 
   profileSelect.addEventListener("change", function () {
     savePreferences();
-    refreshButtonsAndRecommendation();
+    updateTargetUi();
   });
 
   deviceSelect.addEventListener("change", function () {
     savePreferences();
-    refreshButtonsAndRecommendation();
+    updateTargetUi();
   });
 
-  btnInternal.addEventListener("click", function () {
-    if (btnInternal.disabled) {
-      return;
-    }
+  btnLaunch.addEventListener("click", function () {
+    const target = getLaunchTarget();
 
-    const deviceText = getDevice() === "mobile" ? "smartphone" : "desktop";
-    showSpinner(`Conectando a entorno corporativo (${deviceText})...`);
+    showSpinner(`Conectando a ${target.title.toLowerCase()} (${getDeviceLabel().toLowerCase()})...`);
 
     setTimeout(function () {
-      openUrl(getInternalUrl());
-    }, 600);
-  });
-
-  btnExternal.addEventListener("click", function () {
-    const deviceText = getDevice() === "mobile" ? "smartphone" : "desktop";
-    showSpinner(`Conectando a entorno público (${deviceText})...`);
-
-    setTimeout(function () {
-      openUrl(getExternalUrl());
+      openUrl(target.url);
     }, 600);
   });
 
   loadPreferences();
+  updateTargetUi();
   checkInternalNetwork();
 })();
