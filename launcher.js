@@ -5,15 +5,50 @@
   const btnInternal = document.getElementById("btnInternal");
   const btnExternal = document.getElementById("btnExternal");
   const hint = document.getElementById("hint");
+  const profileSelect = document.getElementById("profileSelect");
+  const deviceSelect = document.getElementById("deviceSelect");
+
+  let internalNetworkAvailable = false;
+
+  function getProfile() {
+    return profileSelect.value;
+  }
+
+  function getDevice() {
+    return deviceSelect.value;
+  }
+
+  function savePreferences() {
+    localStorage.setItem("launcherProfile", getProfile());
+    localStorage.setItem("launcherDevice", getDevice());
+  }
+
+  function loadPreferences() {
+    const savedProfile = localStorage.getItem("launcherProfile") || config.defaultProfile || "standard";
+    const savedDevice = localStorage.getItem("launcherDevice") || config.defaultDevice || "desktop";
+
+    profileSelect.value = savedProfile;
+    deviceSelect.value = savedDevice;
+  }
+
+  function getInternalUrl() {
+    return getDevice() === "mobile"
+      ? config.internalMobileAppUrl
+      : config.internalDesktopAppUrl;
+  }
+
+  function getExternalUrl() {
+    return getDevice() === "mobile"
+      ? config.externalMobileAppUrl
+      : config.externalDesktopAppUrl;
+  }
 
   function openUrl(url) {
     window.open(url, config.openMode || "_self");
   }
 
   function sleep(ms) {
-    return new Promise(function (resolve) {
-      setTimeout(resolve, ms);
-    });
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   function setStatus(cssClass, html) {
@@ -21,40 +56,59 @@
     statusBox.innerHTML = html;
   }
 
-  function showTruck(message) {
-    setStatus(
-      "launching",
-      `<span class="truck-loader">🚛</span><span>${message}</span>`
-    );
+  function showSpinner(message) {
+    setStatus("launching", `<span class="spinner"></span><span>${message}</span>`);
   }
 
-  function markRecommended(mode) {
+  function clearRecommended() {
     btnInternal.classList.remove("recommended");
     btnExternal.classList.remove("recommended");
+  }
 
-    if (mode === "internal") {
-      btnInternal.classList.add("recommended");
-      hint.textContent = "Se recomienda trabajar en entorno corporativo para usar la vía rápida interna.";
+  function recommendInternal() {
+    clearRecommended();
+    btnInternal.classList.add("recommended");
+    hint.textContent = "Se recomienda entorno corporativo: perfil Premium y red interna disponible.";
+  }
+
+  function recommendExternal(reason) {
+    clearRecommended();
+    btnExternal.classList.add("recommended");
+    hint.textContent = reason;
+  }
+
+  function refreshButtonsAndRecommendation() {
+    const profile = getProfile();
+
+    if (profile === "standard") {
+      btnInternal.disabled = true;
+      recommendExternal("Perfil Estándar seleccionado: se usará entorno público mediante SharePoint y Power Automate.");
+      return;
     }
 
-    if (mode === "external") {
-      btnExternal.classList.add("recommended");
-      hint.textContent = "Se recomienda trabajar en entorno público porque no se detecta acceso directo al HUB.";
+    if (profile === "premium" && internalNetworkAvailable) {
+      btnInternal.disabled = false;
+      recommendInternal();
+      return;
     }
+
+    btnInternal.disabled = true;
+    recommendExternal("Perfil Premium seleccionado, pero no se detecta red corporativa. Se recomienda entorno público.");
   }
 
   function setStatusChecking(attempt, total) {
+    internalNetworkAvailable = false;
     btnInternal.disabled = true;
 
     if (total > 1) {
       setStatus(
         "checking",
-        `<span class="truck-loader">🚛</span><span>Comprobando red interna... intento ${attempt} de ${total}</span>`
+        `<span class="spinner"></span><span>Comprobando red interna... intento ${attempt} de ${total}</span>`
       );
     } else {
       setStatus(
         "checking",
-        `<span class="truck-loader">🚛</span><span>Comprobando red interna...</span>`
+        `<span class="spinner"></span><span>Comprobando red interna...</span>`
       );
     }
 
@@ -62,7 +116,7 @@
   }
 
   function setStatusOnline(latencyMs) {
-    btnInternal.disabled = false;
+    internalNetworkAvailable = true;
 
     let message = "✅ Red corporativa disponible";
 
@@ -71,13 +125,13 @@
     }
 
     setStatus("online", `<span>${message}</span>`);
-    markRecommended("internal");
+    refreshButtonsAndRecommendation();
   }
 
   function setStatusOffline() {
-    btnInternal.disabled = true;
+    internalNetworkAvailable = false;
     setStatus("offline", "<span>⚠️ Red corporativa no disponible</span>");
-    markRecommended("external");
+    refreshButtonsAndRecommendation();
   }
 
   async function checkHubOnce() {
@@ -101,34 +155,27 @@
       const latencyMs = Math.round(performance.now() - start);
 
       if (!response.ok) {
-        return {
-          ok: false,
-          latencyMs: latencyMs
-        };
+        return { ok: false, latencyMs };
       }
 
       const data = await response.json();
 
       return {
         ok: data && data.ok === true,
-        latencyMs: latencyMs
+        latencyMs
       };
 
     } catch (error) {
       clearTimeout(timeout);
-
-      return {
-        ok: false,
-        latencyMs: null
-      };
+      return { ok: false, latencyMs: null };
     }
   }
 
   async function checkInternalNetwork() {
     if (!config.healthCheckEnabled) {
-      btnInternal.disabled = false;
+      internalNetworkAvailable = true;
       setStatus("checking", "<span>Comprobación automática desactivada</span>");
-      hint.textContent = "Puedes elegir manualmente cualquier acceso.";
+      refreshButtonsAndRecommendation();
       return;
     }
 
@@ -152,25 +199,38 @@
     setStatusOffline();
   }
 
+  profileSelect.addEventListener("change", function () {
+    savePreferences();
+    refreshButtonsAndRecommendation();
+  });
+
+  deviceSelect.addEventListener("change", function () {
+    savePreferences();
+    refreshButtonsAndRecommendation();
+  });
+
   btnInternal.addEventListener("click", function () {
     if (btnInternal.disabled) {
       return;
     }
 
-    showTruck("Conectando a entorno corporativo...");
+    const deviceText = getDevice() === "mobile" ? "smartphone" : "desktop";
+    showSpinner(`Conectando a entorno corporativo (${deviceText})...`);
 
     setTimeout(function () {
-      openUrl(config.internalAppUrl);
+      openUrl(getInternalUrl());
     }, 600);
   });
 
   btnExternal.addEventListener("click", function () {
-    showTruck("Conectando a entorno público...");
+    const deviceText = getDevice() === "mobile" ? "smartphone" : "desktop";
+    showSpinner(`Conectando a entorno público (${deviceText})...`);
 
     setTimeout(function () {
-      openUrl(config.externalAppUrl);
+      openUrl(getExternalUrl());
     }, 600);
   });
 
+  loadPreferences();
   checkInternalNetwork();
 })();
