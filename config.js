@@ -10,7 +10,7 @@ window.launcherConfig = {
   standardDesktopAppUrl: "https://apps.powerapps.com/play/APP_ESTANDAR_DESKTOP",
   standardMobileAppUrl: "https://apps.powerapps.com/play/APP_ESTANDAR_SMARTPHONE",
 
-  hubHealthUrl: "http://IP_INTERNA:PUERTO/hub-health",
+  hubHealthUrl: "http://10.17.2.101:5000/hub-health",
 
   healthCheckEnabled: true,
   timeoutMs: 2000,
