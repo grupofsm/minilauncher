@@ -18,39 +18,86 @@
       --error-text: #842029;
     }
 
-body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  color: var(--brand-dark);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  padding: 14px;
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      color: var(--brand-dark);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 74px 14px 14px;
 
-  background:
-  linear-gradient(
-  rgba(255, 255, 255, 0.35),
-  rgba(255, 255, 255, 0.45)
-),
-    ),
-    url("https://grupofsm.com/assets/GrupoFSM_Grupo_03.jpg");
+      background:
+        linear-gradient(
+          rgba(255, 255, 255, 0.35),
+          rgba(255, 255, 255, 0.45)
+        ),
+        url("https://grupofsm.com/assets/GrupoFSM_Grupo_03.jpg");
 
-  background-size: cover;
-  background-position: center center;
-  background-repeat: no-repeat;
-} 
-  .card {
-  background: rgba(255,255,255,0.92);
-  width: 100%;
-  max-width: 420px;
-  border-radius: 18px;
-  padding: 18px;
-  box-shadow: 0 12px 30px rgba(0,82,99,0.22);
-  text-align: center;
-  border-top: 6px solid var(--brand);
-  backdrop-filter: blur(6px);
-}
+      background-size: cover;
+      background-position: center center;
+      background-repeat: no-repeat;
+    }
+
+    body.fade-out {
+      opacity: 0;
+      transform: scale(0.98);
+      transition: opacity 0.35s ease, transform 0.35s ease;
+    }
+
+    .top-banner {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 54px;
+      background: rgba(0, 82, 99, 0.92);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+      z-index: 10;
+      backdrop-filter: blur(6px);
+    }
+
+    .top-banner-content {
+      width: 100%;
+      max-width: 920px;
+      padding: 0 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    .top-banner img {
+      height: 32px;
+      width: auto;
+      background: white;
+      border-radius: 6px;
+      padding: 3px;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.92);
+      width: 100%;
+      max-width: 420px;
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 12px 30px rgba(0,82,99,0.22);
+      text-align: center;
+      border-top: 6px solid var(--brand);
+      backdrop-filter: blur(6px);
+    }
+
+    .card.launch-clicked {
+      transform: scale(0.97);
+      opacity: 0.85;
+      transition: transform 0.25s ease, opacity 0.25s ease;
+    }
 
     .logo {
       max-width: 95px;
@@ -139,17 +186,7 @@ body {
       display: inline-block;
       flex: 0 0 auto;
     }
-    body.fade-out {
-      opacity: 0;
-      transform: scale(0.98);
-      transition: opacity 0.35s ease, transform 0.35s ease;
-    }
 
-    .card.launch-clicked {
-      transform: scale(0.97);
-      opacity: 0.85;
-      transition: transform 0.25s ease, opacity 0.25s ease;
-    }
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
@@ -229,43 +266,22 @@ body {
       font-size: 10px;
       color: #829398;
     }
-.top-banner {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 54px;
-  background: rgba(0, 82, 99, 0.92);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.18);
-  z-index: 10;
-  backdrop-filter: blur(6px);
-}
 
-.top-banner-content {
-  width: 100%;
-  max-width: 920px;
-  padding: 0 18px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 14px;
-  font-weight: bold;
-}
-
-.top-banner img {
-  height: 32px;
-  width: auto;
-  background: white;
-  border-radius: 6px;
-  padding: 3px;
-}
     @media (max-width: 480px) {
       body {
-        padding: 10px;
+        padding: 64px 10px 10px;
+      }
+
+      .top-banner {
+        height: 48px;
+      }
+
+      .top-banner-content {
+        font-size: 12px;
+      }
+
+      .top-banner img {
+        height: 28px;
       }
 
       .card {
@@ -300,6 +316,7 @@ body {
       <span>MiniLauncher · Acceso seguro a Power Apps</span>
     </div>
   </header>
+
   <main class="card">
     <img src="logo.png" alt="Hormican FSM Construcción" class="logo" />
 
