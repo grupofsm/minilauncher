@@ -219,14 +219,25 @@
   });
 
   btnLaunch.addEventListener("click", function () {
-    const target = getLaunchTarget();
+  const target = getLaunchTarget();
+  const card = document.querySelector(".card");
 
-    showSpinner(`Conectando a ${target.title.toLowerCase()} (${getDeviceLabel().toLowerCase()})...`);
+  btnLaunch.disabled = true;
 
-    setTimeout(function () {
-      openUrl(target.url);
-    }, 600);
-  });
+  showSpinner(`Conectando a ${target.title.toLowerCase()} (${getDeviceLabel().toLowerCase()})...`);
+
+  if (card) {
+    card.classList.add("launch-clicked");
+  }
+
+  setTimeout(function () {
+    document.body.classList.add("fade-out");
+  }, 250);
+
+  setTimeout(function () {
+    openUrl(target.url);
+  }, 650);
+});
 
   loadPreferences();
   updateTargetUi();
