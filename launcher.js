@@ -224,7 +224,7 @@
 
   btnLaunch.disabled = true;
 
-  showSpinner(`Conectando a ${target.title.toLowerCase()} (${getDeviceLabel().toLowerCase()})...`);
+  showSpinner("Accediendo a un entorno seguro...");
 
   if (card) {
     card.classList.add("launch-clicked");
@@ -232,13 +232,12 @@
 
   setTimeout(function () {
     document.body.classList.add("fade-out");
-  }, 250);
+  }, 2600);
 
   setTimeout(function () {
     openUrl(target.url);
-  }, 650);
+  }, 3000);
 });
-
   loadPreferences();
   updateTargetUi();
   checkInternalNetwork();
