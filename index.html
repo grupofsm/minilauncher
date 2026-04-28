@@ -18,18 +18,25 @@
       --error-text: #842029;
     }
 
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      background: radial-gradient(circle at top, #ffffff 0%, #eef5f6 55%, #dcebed 100%);
-      color: var(--brand-dark);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      padding: 14px;
-    }
-
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  color: var(--brand-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 14px;
+  background:
+    linear-gradient(
+      rgba(255, 255, 255, 0.78),
+      rgba(255, 255, 255, 0.86)
+    ),
+    url("fondo.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
     .card {
       background: rgba(255,255,255,0.96);
       width: 100%;
