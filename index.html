@@ -73,16 +73,16 @@
       font-weight: bold;
     }
 
-  .top-banner img {
-  height: 34px;
-  width: 34px;
-  min-width: 34px;
-  display: block;
-  object-fit: contain;
-  background: transparent;
-  border-radius: 0;
-  padding: 0;
-}    
+    .top-banner img {
+      height: 34px;
+      width: 34px;
+      min-width: 34px;
+      display: block;
+      object-fit: contain;
+      background: transparent;
+      border-radius: 0;
+      padding: 0;
+    }
 
     .card {
       background: rgba(255,255,255,0.92);
@@ -270,6 +270,19 @@
       color: #829398;
     }
 
+    .bottom-footer {
+      position: fixed;
+      bottom: 10px;
+      right: 14px;
+      font-size: 11px;
+      color: rgba(0, 0, 0, 0.6);
+      background: rgba(255, 255, 255, 0.6);
+      padding: 6px 10px;
+      border-radius: 8px;
+      backdrop-filter: blur(4px);
+      z-index: 10;
+    }
+
     @media (max-width: 480px) {
       body {
         padding: 64px 10px 10px;
@@ -285,6 +298,8 @@
 
       .top-banner img {
         height: 28px;
+        width: 28px;
+        min-width: 28px;
       }
 
       .card {
@@ -308,6 +323,12 @@
         font-size: 14px;
         padding: 12px;
       }
+
+      .bottom-footer {
+        font-size: 10px;
+        bottom: 8px;
+        right: 10px;
+      }
     }
   </style>
 </head>
@@ -315,7 +336,7 @@
 <body>
   <header class="top-banner">
     <div class="top-banner-content">
-      <img src="https://grupofsm.com/assets/ISO_GrupoFSM_Blanco.svg" alt="Grupo FSM" />
+      <img src="https://grupofsm.com/assets/ISO_GrupoFSM_Blanco.svg?v=1" alt="Grupo FSM" />
       <span>MiniLauncher · Acceso seguro a Power Apps</span>
     </div>
   </header>
@@ -366,6 +387,10 @@
       MiniLauncher ApiHrsC · Hormican FSM
     </div>
   </main>
+
+  <footer class="bottom-footer">
+    Equipo de I.T. GrupoFSM
+  </footer>
 
   <script src="config.js"></script>
   <script src="launcher.js"></script>
